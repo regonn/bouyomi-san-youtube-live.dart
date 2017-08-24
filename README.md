@@ -1,5 +1,5 @@
 # Bouyomi San YoutubeLive
-Bouyomi San reads YouTubeLive chat comments with Web Speach API.
+Bouyomi San reads YouTubeLive chat comments with Web Speech API.
 
 ## How to use
 ```
