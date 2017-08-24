@@ -30,8 +30,8 @@ void main() {
             liveChatId = video.liveStreamingDetails.activeLiveChatId;
             speak(video.snippet.title);
             lastMessagedAt = new DateTime.now();
-            const oneSec = const Duration(seconds:5);
-            new Timer.periodic(oneSec, (Timer t) => speakNewMessage(api, liveChatId));
+            const duration = const Duration(seconds:5);
+            new Timer.periodic(duration, (Timer t) => speakNewMessages(api, liveChatId));
           }
         });
       }
@@ -39,7 +39,7 @@ void main() {
   });
 }
 
-void speakNewMessage(youtube.YoutubeApi api, String liveChatId) {
+void speakNewMessages(youtube.YoutubeApi api, String liveChatId) {
   api.liveChatMessages.list(liveChatId, 'snippet').then((youtube.LiveChatMessageListResponse messagesResponse) {
     if (messagesResponse.items != null) {
       var speakMessages = messagesResponse.items.where((item)=> item.snippet.publishedAt.isAfter(lastMessagedAt)).toList();
