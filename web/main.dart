@@ -20,25 +20,31 @@ void main() {
     var apiKey = apiKeyInput.value;
     var client = auth.clientViaApiKey(apiKey);
     var api = new youtube.YoutubeApi(client);
-    api.search.list("id", channelId: channelIdInput.value, type: 'video', eventType: 'live').then((youtube.SearchListResponse response) {
-      var liveVideoId = null;
-      if (response.items != null) {
-        liveVideoId = response.items.first.id.videoId;
-        api.videos.list("liveStreamingDetails,snippet", id: liveVideoId).then((youtube.VideoListResponse videoResponse) {
-          var liveChatId = null;
-          if (videoResponse.items != null) {
-            var video = videoResponse.items.first;
-            liveChatId = video.liveStreamingDetails.activeLiveChatId;
-            var title = video.snippet.title;
-            speak('$title のチャンネルに設定されました');
-            displayOutput(title);
-            lastMessagedAt = new DateTime.now();
-            const duration = const Duration(seconds:5);
-            new Timer.periodic(duration, (Timer t) => speakNewMessages(api, liveChatId));
-          }
-        });
-      }
-    });
+    api.search.list("id", channelId: channelIdInput.value, type: 'video', eventType: 'live')
+      .then((youtube.SearchListResponse response) {
+        var liveVideoId = null;
+        if (response.items != null) {
+          liveVideoId = response.items.first.id.videoId;
+          api.videos.list("liveStreamingDetails,snippet", id: liveVideoId).then((youtube.VideoListResponse videoResponse) {
+            var liveChatId = null;
+            if (videoResponse.items != null) {
+              var video = videoResponse.items.first;
+              liveChatId = video.liveStreamingDetails.activeLiveChatId;
+              var title = video.snippet.title;
+              speak('$title のチャンネルに設定されました');
+              displayOutput(title);
+              lastMessagedAt = new DateTime.now();
+              const duration = const Duration(seconds:5);
+              new Timer.periodic(duration, (Timer t) => speakNewMessages(api, liveChatId));
+            }
+          });
+        }
+      })
+      .catchError((e) {
+        const errorText = 'ライブ情報の取得に失敗しました。入力情報が正しくない可能性または、ライブ放送が行われていない可能性があります。';
+        speak(errorText);
+        displayOutput(errorText);
+      });
   });
 }
 
@@ -48,7 +54,6 @@ void speakNewMessages(youtube.YoutubeApi api, String liveChatId) {
       var speakMessages = messagesResponse.items.where((item)=> item.snippet.publishedAt.isAfter(lastMessagedAt)).toList();
       for(youtube.LiveChatMessage message in speakMessages ){
         lastMessagedAt = message.snippet.publishedAt;
-        print(lastMessagedAt);
         speak(message.snippet.displayMessage);
       }
     }
