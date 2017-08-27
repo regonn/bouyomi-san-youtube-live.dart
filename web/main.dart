@@ -13,7 +13,8 @@ void main() {
   InputElement channelIdInput = querySelector('#channel-id');
   ButtonElement setButton = querySelector('#set-button');
 
-  querySelector('#output').text = 'Your Dart app is running.';
+  displayOutput('APIキーとチャンネルを設定してください。');
+  speak('起動しました。エーピーアイキーとチャンネルを設定してください。');
 
   setButton.onClick.listen((_) {
     var apiKey = apiKeyInput.value;
@@ -28,7 +29,9 @@ void main() {
           if (videoResponse.items != null) {
             var video = videoResponse.items.first;
             liveChatId = video.liveStreamingDetails.activeLiveChatId;
-            speak(video.snippet.title);
+            var title = video.snippet.title;
+            speak('$title のチャンネルに設定されました');
+            displayOutput(title);
             lastMessagedAt = new DateTime.now();
             const duration = const Duration(seconds:5);
             new Timer.periodic(duration, (Timer t) => speakNewMessages(api, liveChatId));
@@ -57,6 +60,9 @@ void speak(String text) {
   u.text = text;
   u.lang = 'ja-JP';
   u.rate = 1.4;
-  u.pitch = 0.8;
   window.speechSynthesis.speak(u);
+}
+
+void displayOutput(String text) {
+  querySelector('#output').text = text;
 }
